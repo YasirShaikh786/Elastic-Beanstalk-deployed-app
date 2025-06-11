@@ -1,40 +1,23 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { connectDb } from './db/connectDatabase.js';
 
 dotenv.config();
+
 const app = express();
-
-const PORT = process.env.PORT || 5000;
-
-// Define allowed frontend URLs
-const allowedOrigins = [
-  "http://localhost:3001"
-];
-
-// Configure CORS
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (e.g., mobile apps, Postman)
-      if (!origin) return callback(null, true);
-
-      // Check if the origin is in the allowed list
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true, // Allow cookies
-    allowedHeaders: ['Authorization', 'Content-Type'],
-  })
-);
-
+app.use(cors());
 app.use(express.json());
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  connectDb();
+// MongoDB Atlas Connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err));
+
+// Sample API Route
+app.get('/api/data', (req, res) => {
+  res.json({ message: "Hello from Elastic Beanstalk!" });
 });
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
